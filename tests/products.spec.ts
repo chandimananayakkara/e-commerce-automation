@@ -1,52 +1,57 @@
 import { expect, test } from "@playwright/test";
-
-async function login(page: any) {
-  await page.goto("https://www.saucedemo.com/");
-  await page.getByPlaceholder("Username").fill("standard_user");
-  await page.getByPlaceholder("Password").fill("secret_sauce");
-  await page.getByRole("button", { name: "Login" }).click();
-}
+import { LoginPage } from "../pages/LoginPage.js";
+import { ProductPage } from "../pages/ProductsPage.js";
 
 test("products page loads sucessfully", async ({ page }) => {
-  await page.goto("https://www.saucedemo.com/");
-  await login(page);
+  const loginPage = new LoginPage(page);
+  const productsPage = new ProductPage(page);
 
-  await expect(page.getByText("Sauce Labs Backpack")).toBeVisible();
+  await loginPage.goto();
+  await loginPage.login("standard_user", "secret_sauce");
+  await productsPage.goto();
   await expect(page.getByText("Sauce Labs Fleece Jacket")).toBeVisible();
+  await expect(page.getByText("Sauce Labs Backpack")).toBeVisible();
 });
 
 test("can view product details", async ({ page }) => {
-  await page.goto("https://www.saucedemo.com/");
+  const loginPage = new LoginPage(page);
+  const productsPage = new ProductPage(page);
 
-  await login(page);
+  await loginPage.goto();
+  await loginPage.login("standard_user", "secret_sauce");
+  await productsPage.goto();
 
   await page.getByText("Sauce Labs Backpack").click();
   await expect(page).toHaveURL(/.*inventory-item\.html\?id=\d+/);
-  expect(page.getByText("Back to products")).toBeVisible();
-  expect(page.getByText("$")).toBeVisible();
+  await expect(page.getByText("Back to products")).toBeVisible();
+  await expect(page.getByText("$")).toBeVisible();
 });
 
-test("can filter product by Name(A to Z", async ({ page }) => {
-  await page.goto("https://www.saucedemo.com/");
+test("can filter product by category", async ({ page }) => {
+  const loginPage = new LoginPage(page);
+  const productsPage = new ProductPage(page);
 
-  await login(page);
+  await loginPage.goto();
+  await loginPage.login("standard_user", "secret_sauce");
+  await productsPage.goto();
 
-  await page
-    .getByTestId("product-sort-container")
-    .selectOption({ label: "Price (low to high)" });
+  await productsPage.filterProduct("lohi");
   await expect(page.getByText("Sauce Labs Onesie")).toBeVisible();
   await expect(page.getByText("Sauce Labs Fleece Jacket")).toBeVisible();
 });
 
 test("can add products to cart", async ({ page }) => {
-  await page.goto("https://www.saucedemo.com/");
+  const loginPage = new LoginPage(page);
+  const productsPage = new ProductPage(page);
 
-  await login(page);
+  await loginPage.goto();
+  await loginPage.login("standard_user", "secret_sauce");
+  await productsPage.goto();
 
-  await page.getByRole("button", { name: "Add to cart" }).first().click();
+  productsPage.addToCart("add-to-cart-sauce-labs-backpack");
   await expect(page.getByTestId("shopping-cart-badge")).toHaveText("1");
   await expect(page.getByRole("button", { name: "Remove" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Add to cart" }).nth(1).click();
+  productsPage.addToCart("add-to-cart-sauce-labs-bike-light");
   await expect(page.getByTestId("shopping-cart-badge")).toHaveText("2");
 });

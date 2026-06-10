@@ -12,8 +12,7 @@ export class ProductPage {
   }
 
   async addToCart(productName: string) {
-    await this.page.getByText(productName).click();
-    await this.page.getByText("Add to cart").click();
+    await this.page.getByTestId(productName).click()
   }
 
   async goToCart() {
@@ -23,7 +22,8 @@ export class ProductPage {
   async filterProduct(category: string){
      await this.page
     .getByTestId("product-sort-container")
-    .selectOption({ label: category });
+    .selectOption({ value: category });
  
   }
+  
 }
