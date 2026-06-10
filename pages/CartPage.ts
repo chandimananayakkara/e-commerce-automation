@@ -13,15 +13,12 @@ export class CartPage {
   }
 
   async removeFromCart(productName: string) {
-    await this.page.getByText(productName);
+    await this.page.getByText(productName).click();
     await this.page.getByRole("button", { name: "Remove" }).click();
     await expect(
       this.page.getByRole("button", { name: "Remove" }),
-    ).toBeVisible();
-    await this.page.getByRole("button", { name: "Back to products" }).click();
-  }
-
-  async goToCheckout() {
-    await this.page.getByRole("button", { name: "Checkout" }).click();
+    ).not.toBeVisible();
+    await this.goto()
+    await expect(this.page.getByText(productName)).not.toBeVisible()
   }
 }

@@ -2,53 +2,42 @@ import { expect, test } from "@playwright/test";
 import { LoginPage } from "../pages/LoginPage.js";
 import { ProductPage } from "../pages/ProductsPage.js";
 
-test("products page loads sucessfully", async ({ page }) => {
-  const loginPage = new LoginPage(page);
-  const productsPage = new ProductPage(page);
+test.describe("Product Testing", () => {
+  let loginPage: LoginPage;
+  let productsPage: ProductPage;
 
-  await loginPage.goto();
-  await loginPage.login("standard_user", "secret_sauce");
-  await productsPage.goto();
-  await productsPage.isDisplayProducts("Sauce Labs Backpack");
-  await productsPage.isDisplayProducts("Sauce Labs Bike Light");
-});
 
-test("can view product details", async ({ page }) => {
-  const loginPage = new LoginPage(page);
-  const productsPage = new ProductPage(page);
+  test.beforeEach(async ({ page }) => {
+    loginPage = new LoginPage(page);
+    productsPage = new ProductPage(page);
+    await loginPage.goto();
+    await loginPage.login("standard_user", "secret_sauce");
+    await productsPage.goto();
+  });
 
-  await loginPage.goto();
-  await loginPage.login("standard_user", "secret_sauce");
-  await productsPage.goto();
 
-  await productsPage.viewSingleItemDetails('Sauce Labs Backpack')
-  
-});
+  test("products page loads sucessfully", async ({ page }) => {
+    await productsPage.isDisplayProduct("Sauce Labs Backpack");
+    await productsPage.isDisplayProduct("Sauce Labs Bike Light");
+  });
 
-test("can filter product by category", async ({ page }) => {
-  const loginPage = new LoginPage(page);
-  const productsPage = new ProductPage(page);
+  test("can view product details", async ({ page }) => {
 
-  await loginPage.goto();
-  await loginPage.login("standard_user", "secret_sauce");
-  await productsPage.goto();
+    await productsPage.viewSingleItemDetails("Sauce Labs Backpack");
+  });
 
-  await productsPage.filterProduct("lohi");
-  
-});
+  test("can filter product by category", async ({ page }) => {
 
-test("can add products to cart", async ({ page }) => {
-  const loginPage = new LoginPage(page);
-  const productsPage = new ProductPage(page);
+    await productsPage.filterProduct("lohi");
+  });
 
-  await loginPage.goto();
-  await loginPage.login("standard_user", "secret_sauce");
-  await productsPage.goto();
+  test("can add products to cart", async ({ page }) => {
 
-  productsPage.addToCart("add-to-cart-sauce-labs-backpack");
-  await expect(page.getByTestId("shopping-cart-badge")).toHaveText("1");
-  await expect(page.getByRole("button", { name: "Remove" })).toBeVisible();
+    await productsPage.addToCart("Sauce Labs Backpack");
+    await expect(page.getByTestId("shopping-cart-badge")).toHaveText("1");
 
-  productsPage.addToCart("add-to-cart-sauce-labs-bike-light");
-  await expect(page.getByTestId("shopping-cart-badge")).toHaveText("2");
+
+    await productsPage.addToCart("Sauce Labs Bike Light");
+    await expect(page.getByTestId("shopping-cart-badge")).toHaveText("2");
+  });
 });

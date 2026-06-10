@@ -1,70 +1,54 @@
 import { test, expect } from "@playwright/test";
 import { LoginPage } from "../pages/LoginPage.js";
 
-test("successful login with valid credentials", async ({ page }) => {
-  const loginPage = new LoginPage(page);
+test.describe("Loging Page Tests", () => {
 
-  await loginPage.goto()
+  let loginPage: LoginPage;
 
-  await expect(page).toHaveTitle("Swag Labs");
+  test.beforeEach(async ({ page }) => {
+    loginPage = new LoginPage(page);
+    await loginPage.goto();
 
-  await loginPage.login('standard_user','secret_sauce')
+    await expect(page).toHaveTitle("Swag Labs");
+  });
 
-  await expect(page).toHaveURL("https://www.saucedemo.com/inventory.html");
+  test("successful login with valid credentials", async ({ page }) => {
+    await loginPage.login("standard_user", "secret_sauce");
 
-  const isLoggedIn = await loginPage.isLoggedIn()
-  await expect(isLoggedIn).toBe(true)
+    await expect(page).toHaveURL("https://www.saucedemo.com/inventory.html");
 
-});
+    const isLoggedIn = await loginPage.isLoggedIn();
+    await expect(isLoggedIn).toBe(true);
+  });
 
-test("login fails with invalid password", async ({ page }) => {
-  const loginPage = new LoginPage(page);
+  test("login fails with invalid password", async ({ page }) => {
 
-  await loginPage.goto()
+    await loginPage.login("standard_user", "wrong_password");
 
-  await expect(page).toHaveTitle("Swag Labs");
+    const errorMessage = await loginPage.getErrorMessage();
+    expect(errorMessage).toContain("Username and password do not match");
+  });
 
-  await loginPage.login('standard_user','wrong_password')
+  test("login fails with empty username", async ({ page }) => {
 
-  const errorMessage = await loginPage.getErrorMessage()
-  expect (errorMessage).toContain('Username and password do not match')
-});
+    await loginPage.login("", "wrong_password");
 
-test("login fails with empty username", async ({ page }) => {
-  const loginPage = new LoginPage(page);
+    const errorMessage = await loginPage.getErrorMessage();
+    expect(errorMessage).toContain("Username is required");
+  });
 
-  await loginPage.goto()
+  test("login fails with empty password", async ({ page }) => {
 
-  await expect(page).toHaveTitle("Swag Labs");
+    await loginPage.login("standard_user", "");
 
-  await loginPage.login('','wrong_password')
+    const errorMessage = await loginPage.getErrorMessage();
+    expect(errorMessage).toContain("Password is required");
+  });
 
-  const errorMessage = await loginPage.getErrorMessage()
-  expect(errorMessage).toContain("Username is required");
-});
+  test("login fails with empty username and password", async ({ page }) => {
+    await loginPage.login("", "");
 
-test("login fails with empty password", async ({ page }) => {
-  const loginPage = new LoginPage(page);
-
-  await loginPage.goto()
-
-  await expect(page).toHaveTitle("Swag Labs");
-
-  await loginPage.login('standard_user','')
-
-  const errorMessage = await loginPage.getErrorMessage()
-  expect(errorMessage).toContain("Password is required");
-});
-
-test("login fails with empty username and password", async ({ page }) => {
-  const loginPage = new LoginPage(page);
-
-  await loginPage.goto()
-
-  await expect(page).toHaveTitle("Swag Labs");
-
-  await loginPage.login('','')
-
-  const errorMessage = await loginPage.getErrorMessage()
-  expect(errorMessage).toContain("Username is required");
+    const errorMessage = await loginPage.getErrorMessage();
+    expect(errorMessage).toContain("Username is required");
+  });
 });

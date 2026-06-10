@@ -11,22 +11,22 @@ export class ProductPage {
     await this.page.goto("https://www.saucedemo.com/inventory.html");
   }
 
-  async isDisplayProducts(productName: string) {
+  async isDisplayProduct(productName: string) {
     await expect(this.page.getByText(productName)).toBeVisible();
   }
 
   async viewSingleItemDetails(productName: string) {
     await this.page.getByText(productName).click();
+    await expect(this.page.getByAltText(productName))
     await expect(this.page.getByText("Back to products")).toBeVisible();
     await expect(this.page.getByText("$")).toBeVisible();
   }
 
   async addToCart(productName: string) {
-    await this.page.getByTestId(productName).click();
-  }
-
-  async goToCart() {
-    await this.page.getByTestId("shopping-cart-link").click();
+    await this.viewSingleItemDetails(productName)
+    await this.page.getByRole('button', {name:'Add to cart'}).click();
+    await expect(this.page.getByRole("button", { name: "Remove" })).toBeVisible();
+    await this.page.getByRole('button', {name:'Back to products'}).click()
   }
 
   async filterProduct(category: string) {

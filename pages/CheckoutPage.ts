@@ -32,4 +32,12 @@ export class CheckoutPage {
       this.page.getByText("Thank you for your order!"),
     ).toBeVisible();
   }
+
+  async checkError() {
+    if (await this.page.getByTestId("error").isVisible()) {
+      return await this.page.getByTestId("error").textContent();
+    }else{
+      return ''
+    }
+  }
 }
