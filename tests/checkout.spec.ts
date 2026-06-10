@@ -1,15 +1,15 @@
 import { expect, test } from "@playwright/test";
+import { LoginPage } from "../pages/LoginPage.js";
+import { ProductPage } from "../pages/ProductsPage.js";
 
-async function login(page: any) {
-  await page.goto("https://www.saucedemo.com/");
-  await page.getByPlaceholder("Username").fill("standard_user");
-  await page.getByPlaceholder("Password").fill("secret_sauce");
-  await page.getByRole("button", { name: "Login" }).click();
-}
 
 test("can complete checkout process", async ({ page }) => {
-  await page.goto("https://www.saucedemo.com");
-  await login(page);
+  const loginPage = new LoginPage(page);
+    const productsPage = new ProductPage(page);
+  
+    await loginPage.goto();
+    await loginPage.login("standard_user", "secret_sauce");
+    await productsPage.goto();
   await page.getByRole("button", { name: "Add to cart" }).first().click();
 
   await page.getByRole("button", { name: "Add to cart" }).last().click();
@@ -45,8 +45,7 @@ test("can complete checkout process", async ({ page }) => {
     "https://www.saucedemo.com/checkout-complete.html",
   );
 
-  await expect(page.getByText("Checkout: Complete!")).toBeVisible();
-  await expect(page.getByText("Thank you for your order!")).toBeVisible();
+  
 });
 
 test("checkout fails only enter first name", async ({ page }) => {

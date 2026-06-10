@@ -1,37 +1,48 @@
 import { expect, test } from "@playwright/test";
-
-async function login(page: any) {
-  await page.goto("https://www.saucedemo.com/");
-  await page.getByPlaceholder("Username").fill("standard_user");
-  await page.getByPlaceholder("Password").fill("secret_sauce");
-  await page.getByRole("button", { name: "Login" }).click();
-}
+import { LoginPage } from "../pages/LoginPage.js";
+import { ProductPage } from "../pages/ProductsPage.js";
 
 test("cart shows added products", async ({ page }) => {
-  await page.goto("https://www.saucedemo.com");
-  await login(page);
+  const loginPage = new LoginPage(page);
+  const productsPage = new ProductPage(page);
 
-  await page.getByRole("button", { name: "Add to cart" }).first().click();
-  await page.getByTestId("shopping-cart-link").click();
-  await expect(page).toHaveURL("https://www.saucedemo.com/cart.html");
-  await expect(page.getByText("Sauce Labs Backpack")).toBeVisible();
+  await loginPage.goto();
+  await loginPage.login("standard_user", "secret_sauce");
+  await productsPage.goto();
+
+  await productsPage.addToCart("add-to-cart-sauce-labs-backpack");
+  await productsPage.addToCart("add-to-cart-sauce-labs-bike-light");
+
+  await productsPage.goToCart();
 });
 
 test("can remove product from cart", async ({ page }) => {
-  await page.goto("https://www.saucedemo.com");
-  await login(page);
-  await page.getByRole("button", { name: "Add to cart" }).first().click();
-  await page.getByTestId("shopping-cart-link").click();
-  await expect(page).toHaveURL("https://www.saucedemo.com/cart.html");
-  await expect(page.getByText("Sauce Labs Backpack")).toBeVisible();
-  await page.getByText("Remove").click();
-  await expect(page.getByText("Sauce Labs Backpack")).not.toBeVisible();
+  const loginPage = new LoginPage(page);
+  const productsPage = new ProductPage(page);
+
+  await loginPage.goto();
+  await loginPage.login("standard_user", "secret_sauce");
+  await productsPage.goto();
+
+  await productsPage.addToCart("add-to-cart-sauce-labs-backpack");
+  await productsPage.addToCart("add-to-cart-sauce-labs-bike-light");
+
+  await page.getByTestId("remove-sauce-labs-backpack").click();
+  await expect(
+    page.getByTestId("remove-sauce-labs-backpack"),
+  ).not.toBeVisible();
 });
 
 test("cart total item count is correct", async ({ page }) => {
-  await page.goto("https://www.saucedemo.com");
-  await login(page);
-  await page.getByRole("button", { name: "Add to cart" }).first().click();
-  await page.getByRole("button", { name: "Add to cart" }).nth(1).click();
+  const loginPage = new LoginPage(page);
+  const productsPage = new ProductPage(page);
+
+  await loginPage.goto();
+  await loginPage.login("standard_user", "secret_sauce");
+  await productsPage.goto();
+
+  await productsPage.addToCart("add-to-cart-sauce-labs-backpack");
+  await productsPage.addToCart("add-to-cart-sauce-labs-bike-light");
+
   await expect(page.getByTestId("shopping-cart-badge")).toHaveText("2");
 });

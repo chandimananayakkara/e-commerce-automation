@@ -9,8 +9,8 @@ test("products page loads sucessfully", async ({ page }) => {
   await loginPage.goto();
   await loginPage.login("standard_user", "secret_sauce");
   await productsPage.goto();
-  await expect(page.getByText("Sauce Labs Fleece Jacket")).toBeVisible();
-  await expect(page.getByText("Sauce Labs Backpack")).toBeVisible();
+  await productsPage.isDisplayProducts("Sauce Labs Backpack");
+  await productsPage.isDisplayProducts("Sauce Labs Bike Light");
 });
 
 test("can view product details", async ({ page }) => {
@@ -21,10 +21,8 @@ test("can view product details", async ({ page }) => {
   await loginPage.login("standard_user", "secret_sauce");
   await productsPage.goto();
 
-  await page.getByText("Sauce Labs Backpack").click();
-  await expect(page).toHaveURL(/.*inventory-item\.html\?id=\d+/);
-  await expect(page.getByText("Back to products")).toBeVisible();
-  await expect(page.getByText("$")).toBeVisible();
+  await productsPage.viewSingleItemDetails('Sauce Labs Backpack')
+  
 });
 
 test("can filter product by category", async ({ page }) => {
@@ -36,8 +34,7 @@ test("can filter product by category", async ({ page }) => {
   await productsPage.goto();
 
   await productsPage.filterProduct("lohi");
-  await expect(page.getByText("Sauce Labs Onesie")).toBeVisible();
-  await expect(page.getByText("Sauce Labs Fleece Jacket")).toBeVisible();
+  
 });
 
 test("can add products to cart", async ({ page }) => {

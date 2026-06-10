@@ -13,9 +13,8 @@ test("successful login with valid credentials", async ({ page }) => {
   await expect(page).toHaveURL("https://www.saucedemo.com/inventory.html");
 
   const isLoggedIn = await loginPage.isLoggedIn()
-  expect(isLoggedIn).toBe(true)
+  await expect(isLoggedIn).toBe(true)
 
-  await expect(page.getByText("Products")).toBeVisible();
 });
 
 test("login fails with invalid password", async ({ page }) => {

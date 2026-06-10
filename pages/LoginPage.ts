@@ -23,6 +23,7 @@ export class LoginPage{
     }
 
     async getErrorMessage(){
+        await this.page.getByTestId('error').isVisible()
         return await this.page.getByTestId('error').textContent()
     }
 }
