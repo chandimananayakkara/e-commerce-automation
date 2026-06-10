@@ -1,199 +1,176 @@
 import { expect, test } from "@playwright/test";
 import { LoginPage } from "../pages/LoginPage.js";
 import { ProductPage } from "../pages/ProductsPage.js";
-
+import { CartPage } from "../pages/CartPage.js";
+import { CheckoutPage } from "../pages/CheckoutPage.js";
 
 test("can complete checkout process", async ({ page }) => {
   const loginPage = new LoginPage(page);
-    const productsPage = new ProductPage(page);
-  
-    await loginPage.goto();
-    await loginPage.login("standard_user", "secret_sauce");
-    await productsPage.goto();
-  await page.getByRole("button", { name: "Add to cart" }).first().click();
+  const productsPage = new ProductPage(page);
+  const cartPage = new CartPage(page);
+  const checkoutPage = new CheckoutPage(page);
 
-  await page.getByRole("button", { name: "Add to cart" }).last().click();
+  await loginPage.goto();
+  await loginPage.login("standard_user", "secret_sauce");
+  await productsPage.goto();
+  await productsPage.addToCart("add-to-cart-sauce-labs-backpack");
+  await productsPage.addToCart("add-to-cart-sauce-labs-bike-light");
 
-  await page.getByTestId("shopping-cart-link").click();
+  await cartPage.goto();
 
-  await expect(page).toHaveURL("https://www.saucedemo.com/cart.html");
+  await cartPage.goToCheckout();
 
-  await page.getByRole("button", { name: "Checkout" }).click();
+  await checkoutPage.fillDetails("Chandima", "Nanayakkara", "80230");
 
-  await expect(page).toHaveURL(
-    "https://www.saucedemo.com/checkout-step-one.html",
-  );
-
-  await page.getByPlaceholder("First Name").fill("Chandima");
-  await page.getByPlaceholder("Last Name").fill("Nanayakkara");
-  await page.getByPlaceholder("Zip/Postal Code").fill("80230");
-
-  await page.getByTestId("continue").click();
+  await checkoutPage.continueToPayment();
 
   await expect(page).toHaveURL(
     "https://www.saucedemo.com/checkout-step-two.html",
   );
 
-  await expect(page.getByText("Sauce Labs Backpack")).toBeVisible();
-  await expect(
-    page.getByText("Test.allTheThings() T-Shirt (Red)"),
-  ).toBeVisible();
-  await expect(page.getByText("Price Total")).toBeVisible();
-  await page.getByRole("button", { name: "Finish" }).click();
+  await checkoutPage.confirmOrder();
 
   await expect(page).toHaveURL(
     "https://www.saucedemo.com/checkout-complete.html",
   );
 
-  
+  await checkoutPage.completeOrder();
 });
 
 test("checkout fails only enter first name", async ({ page }) => {
-  await page.goto("https://www.saucedemo.com");
-  await login(page);
-  await page.getByRole("button", { name: "Add to cart" }).first().click();
+  const loginPage = new LoginPage(page);
+  const productsPage = new ProductPage(page);
+  const cartPage = new CartPage(page);
+  const checkoutPage = new CheckoutPage(page);
 
-  await page.getByRole("button", { name: "Add to cart" }).last().click();
+  await loginPage.goto();
+  await loginPage.login("standard_user", "secret_sauce");
+  await productsPage.goto();
+  await productsPage.addToCart("add-to-cart-sauce-labs-backpack");
+  await productsPage.addToCart("add-to-cart-sauce-labs-bike-light");
 
-  await page.getByTestId("shopping-cart-link").click();
+  await cartPage.goto();
 
-  await expect(page).toHaveURL("https://www.saucedemo.com/cart.html");
+  await cartPage.goToCheckout();
 
-  await page.getByRole("button", { name: "Checkout" }).click();
+  await checkoutPage.fillDetails("Chandima", "", "");
 
-  await expect(page).toHaveURL(
-    "https://www.saucedemo.com/checkout-step-one.html",
-  );
+  await checkoutPage.continueToPayment();
 
-  await page.getByPlaceholder("First Name").fill("Chandima");
-
-  await page.getByTestId("continue").click();
-
-  await expect(page.getByText('Last Name is required')).toBeVisible()
+  await expect(page.getByText("Last Name is required")).toBeVisible();
 });
 
 test("checkout fails only enter last name", async ({ page }) => {
-  await page.goto("https://www.saucedemo.com");
-  await login(page);
-  await page.getByRole("button", { name: "Add to cart" }).first().click();
+  const loginPage = new LoginPage(page);
+  const productsPage = new ProductPage(page);
+  const cartPage = new CartPage(page);
+  const checkoutPage = new CheckoutPage(page);
 
-  await page.getByRole("button", { name: "Add to cart" }).last().click();
+  await loginPage.goto();
+  await loginPage.login("standard_user", "secret_sauce");
+  await productsPage.goto();
+  await productsPage.addToCart("add-to-cart-sauce-labs-backpack");
+  await productsPage.addToCart("add-to-cart-sauce-labs-bike-light");
 
-  await page.getByTestId("shopping-cart-link").click();
+  await cartPage.goto();
 
-  await expect(page).toHaveURL("https://www.saucedemo.com/cart.html");
+  await cartPage.goToCheckout();
 
-  await page.getByRole("button", { name: "Checkout" }).click();
+  await checkoutPage.fillDetails("", "Nanayakkara", "");
 
-  await expect(page).toHaveURL(
-    "https://www.saucedemo.com/checkout-step-one.html",
-  );
+  await checkoutPage.continueToPayment();
 
-  await page.getByPlaceholder("Last Name").fill("Nanayakkara");
-
-  await page.getByTestId("continue").click();
-
-  await expect(page.getByText('Error: First Name is required')).toBeVisible()
+  await expect(page.getByText("First Name is required")).toBeVisible();
 });
 
 test("checkout fails only enter zip/postal code", async ({ page }) => {
-  await page.goto("https://www.saucedemo.com");
-  await login(page);
-  await page.getByRole("button", { name: "Add to cart" }).first().click();
+  const loginPage = new LoginPage(page);
+  const productsPage = new ProductPage(page);
+  const cartPage = new CartPage(page);
+  const checkoutPage = new CheckoutPage(page);
 
-  await page.getByRole("button", { name: "Add to cart" }).last().click();
+  await loginPage.goto();
+  await loginPage.login("standard_user", "secret_sauce");
+  await productsPage.goto();
+  await productsPage.addToCart("add-to-cart-sauce-labs-backpack");
+  await productsPage.addToCart("add-to-cart-sauce-labs-bike-light");
 
-  await page.getByTestId("shopping-cart-link").click();
+  await cartPage.goto();
 
-  await expect(page).toHaveURL("https://www.saucedemo.com/cart.html");
+  await cartPage.goToCheckout();
 
-  await page.getByRole("button", { name: "Checkout" }).click();
+  await checkoutPage.fillDetails("", "", "80230");
 
-  await expect(page).toHaveURL(
-    "https://www.saucedemo.com/checkout-step-one.html",
-  );
+  await checkoutPage.continueToPayment();
 
-  await page.getByPlaceholder("Zip/Postal Code").fill("80230");
-
-  await page.getByTestId("continue").click();
-
-  await expect(page.getByText('First Name is required')).toBeVisible()
+  await expect(page.getByText("First Name is required")).toBeVisible();
 });
 
 test("checkout fails without enter zip/postal code", async ({ page }) => {
-  await page.goto("https://www.saucedemo.com");
-  await login(page);
-  await page.getByRole("button", { name: "Add to cart" }).first().click();
+  const loginPage = new LoginPage(page);
+  const productsPage = new ProductPage(page);
+  const cartPage = new CartPage(page);
+  const checkoutPage = new CheckoutPage(page);
 
-  await page.getByRole("button", { name: "Add to cart" }).last().click();
+  await loginPage.goto();
+  await loginPage.login("standard_user", "secret_sauce");
+  await productsPage.goto();
+  await productsPage.addToCart("add-to-cart-sauce-labs-backpack");
+  await productsPage.addToCart("add-to-cart-sauce-labs-bike-light");
 
-  await page.getByTestId("shopping-cart-link").click();
+  await cartPage.goto();
 
-  await expect(page).toHaveURL("https://www.saucedemo.com/cart.html");
+  await cartPage.goToCheckout();
 
-  await page.getByRole("button", { name: "Checkout" }).click();
+  await checkoutPage.fillDetails("Chandima", "Nanayakkara", "");
 
-  await expect(page).toHaveURL(
-    "https://www.saucedemo.com/checkout-step-one.html",
-  );
+  await checkoutPage.continueToPayment();
 
-  await page.getByPlaceholder("First Name").fill("Chandima");
-  await page.getByPlaceholder("Last Name").fill("Nanayakkara");
-
-  await page.getByTestId("continue").click();
-
-  await expect(page.getByText('Postal Code is required')).toBeVisible()
+  await expect(page.getByText("Postal Code is required")).toBeVisible();
 });
 
 test("checkout fails without enter first name", async ({ page }) => {
-  await page.goto("https://www.saucedemo.com");
-  await login(page);
-  await page.getByRole("button", { name: "Add to cart" }).first().click();
+  const loginPage = new LoginPage(page);
+  const productsPage = new ProductPage(page);
+  const cartPage = new CartPage(page);
+  const checkoutPage = new CheckoutPage(page);
 
-  await page.getByRole("button", { name: "Add to cart" }).last().click();
+  await loginPage.goto();
+  await loginPage.login("standard_user", "secret_sauce");
+  await productsPage.goto();
+  await productsPage.addToCart("add-to-cart-sauce-labs-backpack");
+  await productsPage.addToCart("add-to-cart-sauce-labs-bike-light");
 
-  await page.getByTestId("shopping-cart-link").click();
+  await cartPage.goto();
 
-  await expect(page).toHaveURL("https://www.saucedemo.com/cart.html");
+  await cartPage.goToCheckout();
 
-  await page.getByRole("button", { name: "Checkout" }).click();
+  await checkoutPage.fillDetails("", "Nanayakkara", "80230");
 
-  await expect(page).toHaveURL(
-    "https://www.saucedemo.com/checkout-step-one.html",
-  );
+  await checkoutPage.continueToPayment();
 
-  await page.getByPlaceholder("Last Name").fill("Nanayakkara");
-  await page.getByPlaceholder("Zip/Postal Code").fill("80230");
-
-  await page.getByTestId("continue").click();
-
-  await expect(page.getByText('First Name is required')).toBeVisible()
+  await expect(page.getByText("First Name is required")).toBeVisible();
 });
 
 test("checkout fails without enter last name", async ({ page }) => {
-  await page.goto("https://www.saucedemo.com");
-  await login(page);
-  await page.getByRole("button", { name: "Add to cart" }).first().click();
+  const loginPage = new LoginPage(page);
+  const productsPage = new ProductPage(page);
+  const cartPage = new CartPage(page);
+  const checkoutPage = new CheckoutPage(page);
 
-  await page.getByRole("button", { name: "Add to cart" }).last().click();
+  await loginPage.goto();
+  await loginPage.login("standard_user", "secret_sauce");
+  await productsPage.goto();
+  await productsPage.addToCart("add-to-cart-sauce-labs-backpack");
+  await productsPage.addToCart("add-to-cart-sauce-labs-bike-light");
 
-  await page.getByTestId("shopping-cart-link").click();
+  await cartPage.goto();
 
-  await expect(page).toHaveURL("https://www.saucedemo.com/cart.html");
+  await cartPage.goToCheckout();
 
-  await page.getByRole("button", { name: "Checkout" }).click();
+  await checkoutPage.fillDetails("Chandima", "", "80230");
 
-  await expect(page).toHaveURL(
-    "https://www.saucedemo.com/checkout-step-one.html",
-  );
+  await checkoutPage.continueToPayment();
 
-  await page.getByPlaceholder("First Name").fill("Chandima");
-  await page.getByPlaceholder("Zip/Postal Code").fill("80230");
-
-  await page.getByTestId("continue").click();
-
-  await expect(page.getByText('Last Name is required')).toBeVisible()
+  await expect(page.getByText("Last Name is required")).toBeVisible();
 });
-
-
-
