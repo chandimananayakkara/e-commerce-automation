@@ -23,6 +23,6 @@ export class LoginPage{
     }
 
     async getErrorMessage(){
-        return await this.page.getByText('Error:').textContent()
+        return await this.page.getByTestId('error').textContent()
     }
 }
