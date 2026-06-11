@@ -22,7 +22,7 @@
 
 ## 🎯 Overview
 
-This is a complete e-commerce automation framework built with **Playwright** and **TypeScript**. It includes **30+ automated test cases** covering login, product browsing, cart management, and checkout processes.
+This is a complete e-commerce automation framework built with **Playwright** and **TypeScript**. It includes **15+ automated test cases** covering login, product browsing, cart management, and checkout processes.
 
 The framework follows **industry standards**:
 - ✅ **Page Object Model (POM)** design pattern
@@ -106,7 +106,7 @@ The framework follows **industry standards**:
 ---
 
 ## 🏗️ Project Structure
-
+```
 e-commerce-automation/
 ├── .github/
 │ └── workflows/
@@ -126,7 +126,7 @@ e-commerce-automation/
 ├── package.json # Dependencies
 ├── tsconfig.json # TypeScript configuration
 └── README.md # Documentation
-
+```
 ## 🚀 Installation
 
 ### Step 1: Install Node.js
